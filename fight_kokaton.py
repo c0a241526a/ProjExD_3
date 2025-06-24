@@ -104,7 +104,8 @@ class Beam:
     def update(self, screen: pg.Surface):
         """
         ビームを速度ベクトルself.vx, self.vyに基づき移動させる
-        引数 screen：画面Surface
+        ビームの速度の変化の関数
+        引数screen：画面Surface
         """
         if check_bound(self.rct) == (True, True):  # 画面外の判定
             self.rct.move_ip(self.vx, self.vy)
