@@ -56,7 +56,7 @@ class Bird:
         self.rct: pg.Rect = self.img.get_rect()
         self.rct.center = xy
 
-    def change_img(self, num: int, screen: pg.Surface):
+    def change_img(self, num: int, screen: pg.Surface):  # こうかとんの画像切り替え
         """
         こうかとん画像を切り替え，画面に転送する
         引数1 num：こうかとん画像ファイル名の番号
@@ -171,6 +171,7 @@ def main():
                 if beam.rct.colliderect(bomb.rct):  # ビームと爆弾の衝突判定
                     beam=None  # beamが消える
                     bomb=None  # bombが消える
+                    bird.change_img(6,screen)  # こうかとんの画像を切り替える
 
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
