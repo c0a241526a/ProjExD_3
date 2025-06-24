@@ -142,6 +142,27 @@ class Bomb:
         screen.blit(self.img, self.rct)
 
 
+class Score:  # スコア関連
+    def __init__(self):
+        """
+        スコアに関するクラス
+        """
+        self.fonto = pg.font.SysFont("hgp創英角ﾎﾟｯﾌﾟ体", 30)  # フォントの設定
+        self.color=(0,0,255)  # 文字列の色(青)
+        self.score=0  # スコアの初期値
+        self.img=self.fonto.render(f"スコア{self.score}",True,self.color)  # 文字列Surfaceの生成
+        self.rct = self.img.get_rect()  # rectを取得
+        self.rct.center=(100,HEIGHT-50)  # スコア位置置
+    def update(self, screen: pg.Surface):
+        """
+        スコアの更新をする
+        引数 screen：画面Surface
+        """
+        self.img=self.fonto.render(f"スコア{self.score}",True,self.color)  # 文字列Surfaceの生成
+        screen.blit(self.img,self.rct)
+        
+        
+
 def main():
     pg.display.set_caption("たたかえ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))    
@@ -155,6 +176,9 @@ def main():
     beam = None  # ゲーム初期化時にはビームは存在しない(スペースキーを押さない限りビームはでない)
     clock = pg.time.Clock()
     tmr = 0
+
+    score_main=Score()  # スコアのインスタンス
+
     while True:
         for event in pg.event.get():  
             if event.type == pg.QUIT:
@@ -167,15 +191,32 @@ def main():
             if bird.rct.colliderect(bomb.rct):
                     # ゲームオーバー時に，こうかとん画像を切り替え，1秒間表示させる
                     bird.change_img(8, screen)  # 8に画像を切り替え
+                    fonto = pg.font.Font(None, 80)
+                    txt = fonto.render("Game Over", True, (255, 0, 0))
+                    screen.blit(txt, [WIDTH//2-150, HEIGHT//2])
+
                     pg.display.update()
                     time.sleep(1)
                     return
+            
+        
+        
+
         for i,bomb in enumerate(bombs):
                 if beam is not None:  # beamが存在するとき(最初はNoneのためこうしないとエラー)
                     if beam.rct.colliderect(bomb.rct):  # ビームと爆弾の衝突判定
                         beam=None  # beamが消える
                         bombs[i]=None  # bombsの一部がNoneになる
                         bird.change_img(6,screen)  # こうかとんの画像を切り替える
+
+                        score_main.score+=1 # スコアの増加
+                        
+
+        score_main.update(screen)  # スコアのアップデート
+            
+                       
+        
+
         bombs = [bomb for bomb in bombs if bomb is not None]
 
         key_lst = pg.key.get_pressed()
