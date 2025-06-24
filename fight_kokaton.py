@@ -160,9 +160,7 @@ class Score:  # スコア関連
         """
         self.img=self.fonto.render(f"スコア{self.score}",True,self.color)  # 文字列Surfaceの生成
         screen.blit(self.img,self.rct)
-        
-        
-
+               
 def main():
     pg.display.set_caption("たたかえ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))    
@@ -173,19 +171,22 @@ def main():
     #for _ in range(NUM_OF_BOMBS):  # NUM_OF_BOMBS回ループして爆弾を作る
         #bombs.append(Bomb((255, 0, 0), 10) )
     bombs = [Bomb((255, 0, 0), 10) for _ in range(NUM_OF_BOMBS)] # 内包型
-    beam = None  # ゲーム初期化時にはビームは存在しない(スペースキーを押さない限りビームはでない)
+    #beam = None  # ゲーム初期化時にはビームは存在しない(スペースキーを押さない限りビームはでない)
     clock = pg.time.Clock()
     tmr = 0
+    beam = None
 
     score_main=Score()  # スコアのインスタンス
 
+    beams=[] 
+
     while True:
-        for event in pg.event.get():  
-            if event.type == pg.QUIT:
-                return
-            if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:  # pg.KEYDOWNでキーが押されたとき
-                # スペースキー押下でBeamクラスのインスタンス生成
-                beam = Beam(bird)            
+        # for event in pg.event.get():  
+        #     if event.type == pg.QUIT:
+        #         return
+        #     if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:  # pg.KEYDOWNでキーが押されたとき
+        #         # スペースキー押下でBeamクラスのインスタンス生成
+        #         beam = Beam(bird)            
         screen.blit(bg_img, [0, 0])
         for bomb in bombs:  
             if bird.rct.colliderect(bomb.rct):
@@ -199,17 +200,44 @@ def main():
                     time.sleep(1)
                     return
             
-        
-        
+         # 空のビーム用のリスト
+        # for event in pg.event.get():  
+        #     if event.type == pg.QUIT:
+        #         return
+        #     if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:  # pg.KEYDOWNでキーが押されたとき
+        #         # スペースキー押下でBeamクラスのインスタンス生成
+        #         beam = Beam(bird)  # ビーム作成
+        #         beams.append(beam)  # ビームをリストに追加
+        #     for i,beam in enumerate(beams):
+        #         screen.blit(bg_img, [0, 0])
+        #         if beam.rct.colliderect(bomb.rct):
+        #             beams[i]=None  # beamが消える
+        #             bomb=None  # 片方消えない
+                        
+            beams = [beam for beam in beams if beam is not None]  # None以外ののビームのリストの作成
+        #screen.blit(bg_img, [0, 0])
 
         for i,bomb in enumerate(bombs):
-                if beam is not None:  # beamが存在するとき(最初はNoneのためこうしないとエラー)
-                    if beam.rct.colliderect(bomb.rct):  # ビームと爆弾の衝突判定
-                        beam=None  # beamが消える
-                        bombs[i]=None  # bombsの一部がNoneになる
-                        bird.change_img(6,screen)  # こうかとんの画像を切り替える
+            for event in pg.event.get():  
+                if event.type == pg.QUIT:
+                    return
+                if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:  # pg.KEYDOWNでキーが押されたとき
+                # スペースキー押下でBeamクラスのインスタンス生成
+                    beam = Beam(bird)  # ビーム作成
+                    beams.append(beam)  # ビームをリストに追加
+                    for j,beam in enumerate(beams):
+                        screen.blit(bg_img, [0, 0])
+                        if beam.rct.colliderect(bomb.rct):
+                            beams[j]=None  # beamが消える
+                        bombs[i]=None
+                        beams = [beam for beam in beams if beam is not None] 
+                #if beam is not None:  # beamが存在するとき(最初はNoneのためこうしないとエラー)
+                if beam.rct.colliderect(bomb.rct):  # ビームと爆弾の衝突判定
+                    beam=None  # beamが消える
+                    bombs[i]=None  # bombsの一部がNoneになる
+                    bird.change_img(6,screen)  # こうかとんの画像を切り替える
 
-                        score_main.score+=1 # スコアの増加
+                    score_main.score+=1 # スコアの増加
                         
 
         score_main.update(screen)  # スコアのアップデート
@@ -221,8 +249,9 @@ def main():
 
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
-        if beam is not None:  # ビームが存在するときだけ
-            beam.update(screen)  # class Beamのupdateで　必要
+        #if beam is not None:  # ビームが存在するときだけ
+        for beam in beams:
+            beam.update(screen)  # class Beamのupdateで必要
         for bomb in bombs:
             bomb.update(screen)
         #if bomb is not None:  # bombがNoneのときにエラーが起きないように
